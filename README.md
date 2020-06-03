@@ -23,13 +23,12 @@ npm install
 EJECUCIÓN
 
 - una vez concluido, en la misma carpeta agregue una carpeta llamada "temp" y otra llamada "xml" y dentro de "xml" COPIE sus facturas xml (enfasis en copiar, puede cometer el error en mover las facturas a esta carpeta).
-- para iniciar el procesamento de las facturas ejecute los siguientes comandos:
-(considere que XXXXX es su RFC)
-EN LINUX:
-- export ucopgun_alska_RFC=XXXXX
-EN WINDOWS:
-- set ucopgun_alska_RFC=XXXXX
-npm run start
+- para iniciar el procesamento de las facturas ejecute los siguientes comandos (considere que XXXXX es su RFC):
+	- EN LINUX:
+		- export ucopgun_alska_RFC=XXXXX
+	- EN WINDOWS:
+		- set ucopgun_alska_RFC=XXXXX
+	- npm run start
 - el programa generará una carpeta temporal cuyo contenido tendrá un archivo llamado "informe.json", dicho archivo se puede abrir con un simple bloc de notas.
 
 DESCRIPCIÓN DEL INFORME:
