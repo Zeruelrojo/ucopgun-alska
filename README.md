@@ -29,7 +29,7 @@ EJECUCIÓN
 	- EN WINDOWS:
 		- set ucopgun_alska_RFC=XXXXX
 	- npm run start
-- el programa generará una carpeta temporal cuyo contenido tendrá un archivo llamado "informe.json", dicho archivo se puede abrir con un simple bloc de notas.
+- el programa generará un archivo llamado "informe.json", dicho archivo se puede abrir con un simple bloc de notas.
 
 DESCRIPCIÓN DEL INFORME:
 
