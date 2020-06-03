@@ -31,6 +31,7 @@ DESCRIPCIÓN DEL INFORME:
 
 apartado anual:
  - se denota por tener solamente el numero del año, este es un acumulado de suma anual de todas las facturas del año, no considera años anteriores.
+ ```json
 	"2020": {
 		"Ingresos_Brutos": xxxx.xxxx,
 		"Gastos_Brutos": xxxx.xxxx,
@@ -39,9 +40,12 @@ apartado anual:
 		"totalIVARetenido": xxxx,
 		"totalISRRetenido": xxxx
 	}
+```
+
 apartado historial:
 - son las facturas en si, ordenadas en orden descendente respecto al tiempo
 - tambien considere que el rol se refiere a emisor o receptor de factura, en este caso es receptor
+ ```json
 	"historial": [
 		{
 			"Fecha": "2020-01-01T00:00:01",
@@ -56,8 +60,11 @@ apartado historial:
 			"totalIVATrasladado": xxx
 		},
         ...
+```
+
 apartado mensual:
 - notese que contiene concatenado el año y el mes en cuestión, contiene ademas de las caracteristicas de la anualidad, el acumulado hasta la fecha en cuestion, en este caso es enero del 2020.
+ ```json
 	"2020_Enero": {
 		"Ingresos_Brutos": xxx,
 		"Ingresos_del_año_hasta_ahora": xxx,
@@ -72,6 +79,7 @@ apartado mensual:
 		"totalIVARetenido_del_año_hasta_ahora": xxx,
 		"totalISRRetenido_del_año_hasta_ahora": xxx
 	}
+```
 
 El programa se encuentra aun en pruebas, lo expongo con el proposito de mejorar el programa y facilitar a los usuarios no experimentados en contabilidad a realizar declaraciones anuales y mensuales.
 
