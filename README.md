@@ -90,3 +90,7 @@ El programa se encuentra aun en pruebas, lo expongo con el proposito de mejorar 
 
 Queda bajo la responsabilidad del usuario el uso de este programa y queda advertido de su inestabilidad y la posibilidad de la generación de información no confiable.
 
+Preguntas, sugerencias, comentarios, reporte de errores, xyz mi contacto es el siguiente:
+ananper_sasur@outlook.com
+
+espero apoyar en lo posible.
