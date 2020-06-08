@@ -23,7 +23,7 @@ npm install
 EJECUCIÓN
 
 - una vez concluido, en la misma carpeta agregue una carpeta llamada "temp" y otra llamada "xml" y dentro de "xml" COPIE sus facturas xml (enfasis en copiar, puede cometer el error en mover las facturas a esta carpeta).
-- para iniciar el procesamento de las facturas ejecute los siguientes comandos (considere que XXXXX es su RFC):
+- para iniciar el procesamento de las facturas ejecute los siguientes comandos (considere que XXXXX es su RFC SIN HOMOCLAVE):
 	- EN LINUX:
 		- export ucopgun_alska_RFC=XXXXX
 	- EN WINDOWS:
