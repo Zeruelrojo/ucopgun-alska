@@ -8,6 +8,11 @@ class XMLProcessing {
 		this.resultProcess = {};
 		this.resultProcess["historial"] = [];
 		this.PREPARED = {};
+		this.debug = false;
+	}
+
+	async setDebugModeOn() {
+		this.debug = true;
 	}
 
 	async defineRFCEjecutorSinHomoclave(RFC) {
@@ -35,7 +40,7 @@ class XMLProcessing {
 	async UbicarContenedor() {
 		// SumarTotalImpuestoTrasladado(XMLProcessing.IVA);
 
-		let date = new Date(this.resultSet["cfdi:Comprobante"]["$"]["Fecha"]);
+		let date = new Date(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonFecha]);
 		this.month = await this.convertMonthNumberToMonthString((date.getUTCMonth() + 1));
 
 		this.year = date.getUTCFullYear();
@@ -49,29 +54,38 @@ class XMLProcessing {
 		if (this.resultProcess[this.year]["Gastos_Brutos"] == undefined) this.resultProcess[this.year]["Gastos_Brutos"] = 0;
 		if (this.resultProcess[this.year + "_" + this.month]["Gastos_Brutos"] == undefined) this.resultProcess[this.year + "_" + this.month]["Gastos_Brutos"] = 0;
 		if (this.resultProcess[this.year + "_" + this.month]["Gastos_del_año_hasta_ahora"] == undefined) this.resultProcess[this.year + "_" + this.month]["Gastos_del_año_hasta_ahora"] = this.resultProcess[this.year]["Gastos_Brutos"];
-		if (this.resultSet["cfdi:Comprobante"]["cfdi:Emisor"][0]["$"]["Rfc"].includes(this.RFC)) {
-			this.resultProcess[this.year]["Ingresos_Brutos"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"]["SubTotal"]);
-			this.resultProcess[this.year + "_" + this.month]["Ingresos_Brutos"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"]["SubTotal"]);
-			this.resultProcess[this.year + "_" + this.month]["Ingresos_del_año_hasta_ahora"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"]["SubTotal"]);
-		} else if (this.resultSet["cfdi:Comprobante"]["cfdi:Receptor"][0]["$"]["Rfc"].includes(this.RFC)) {
-			this.resultProcess[this.year]["Gastos_Brutos"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"]["SubTotal"]);
-			this.resultProcess[this.year + "_" + this.month]["Gastos_Brutos"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"]["SubTotal"]);
-			this.resultProcess[this.year + "_" + this.month]["Gastos_del_año_hasta_ahora"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"]["SubTotal"]);
+
+		if (this.resultSet["cfdi:Comprobante"]["cfdi:Emisor"][0]["$"][this.resultSetJsonEmisorRfc].includes(this.RFC)) {
+			this.resultProcess[this.year]["Ingresos_Brutos"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonSubTotal]);
+			this.resultProcess[this.year + "_" + this.month]["Ingresos_Brutos"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonSubTotal]);
+			this.resultProcess[this.year + "_" + this.month]["Ingresos_del_año_hasta_ahora"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonSubTotal]);
+		} else if (this.resultSet["cfdi:Comprobante"]["cfdi:Receptor"][0]["$"][this.resultSetJsonReceptorRfc].includes(this.RFC)) {
+			this.resultProcess[this.year]["Gastos_Brutos"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonSubTotal]);
+			this.resultProcess[this.year + "_" + this.month]["Gastos_Brutos"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonSubTotal]);
+			this.resultProcess[this.year + "_" + this.month]["Gastos_del_año_hasta_ahora"] += parseFloat(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonSubTotal]);
 		}
 
-		this.PREPARED["Fecha"] = this.resultSet["cfdi:Comprobante"]["$"]["Fecha"];
-		this.PREPARED["NoCertificado"] = this.resultSet["cfdi:Comprobante"]["$"]["NoCertificado"];
-		this.PREPARED["Moneda"] = this.resultSet["cfdi:Comprobante"]["$"]["Moneda"];
-		this.PREPARED["FormaPago"] = this.resultSet["cfdi:Comprobante"]["$"]["FormaPago"];
-		this.PREPARED["MetodoPago"] = this.resultSet["cfdi:Comprobante"]["$"]["MetodoPago"];
-		this.PREPARED["TipoDeComprobante"] = this.resultSet["cfdi:Comprobante"]["$"]["TipoDeComprobante"];
-		this.PREPARED["Total"] = parseFloat(this.resultSet["cfdi:Comprobante"]["$"]["Total"]);
-		this.PREPARED["SubTotal"] = parseFloat(this.resultSet["cfdi:Comprobante"]["$"]["SubTotal"]);
-		if (this.resultSet["cfdi:Comprobante"]["cfdi:Emisor"][0]["$"]["Rfc"].includes(this.RFC)) {
+
+		this.PREPARED["Fecha"] = this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonFecha];
+		this.PREPARED["NoCertificado"] = this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonNoCertificado];
+		this.PREPARED["Archivo"] = this.path;
+		this.PREPARED["TipoFactura"] = this.tipoRuta;
+		this.PREPARED["Moneda"] = this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonMoneda];
+		this.PREPARED["FormaPago"] = this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonFormaPago];
+		this.PREPARED["MetodoPago"] = this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonMetodoPago];
+		this.PREPARED["TipoDeComprobante"] = this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonTipoDeComprobante];
+		this.PREPARED["Total"] = parseFloat(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonTotal]);
+		this.PREPARED["SubTotal"] = parseFloat(this.resultSet["cfdi:Comprobante"]["$"][this.resultSetJsonSubTotal]);
+		if (this.resultSet["cfdi:Comprobante"]["cfdi:Emisor"][0]["$"][this.resultSetJsonEmisorRfc].includes(this.RFC)) {
 			this.PREPARED["Rol"] = "EMISOR";
-		} else if (this.resultSet["cfdi:Comprobante"]["cfdi:Receptor"][0]["$"]["Rfc"].includes(this.RFC)) {
+			this.PREPARED["Contraparte"] = this.resultSet["cfdi:Comprobante"]["cfdi:Receptor"][0]["$"][this.resultSetJsonReceptorNombre];
+		} else if (this.resultSet["cfdi:Comprobante"]["cfdi:Receptor"][0]["$"][this.resultSetJsonReceptorRfc].includes(this.RFC)) {
 			this.PREPARED["Rol"] = "RECEPTOR";
+			this.PREPARED["Contraparte"] = this.resultSet["cfdi:Comprobante"]["cfdi:Emisor"][0]["$"][this.resultSetJsonEmisorNombre];
 		}
+
+		// this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][index1]["cfdi:Concepto"][index2]["cfdi:Impuestos"] (undefined es sin impuesto)
+		// this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][index1]["cfdi:Concepto"][index2]["cfdi:Impuestos"][index3]["cfdi:Traslados"][index4]["cfdi:Traslado"][index5]["$"]["importe"]
 
 		if (this.tipoRuta == 1) {
 			for (let indexConceptos = 0; indexConceptos < this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"].length; indexConceptos++) {
@@ -89,7 +103,11 @@ class XMLProcessing {
 								for (let indexTraslado = 0; indexTraslado < elementTraslados["cfdi:Traslado"].length; indexTraslado++) {
 									const elementTraslado = elementTraslados["cfdi:Traslado"][indexTraslado];
 									const contenedor = elementTraslado["$"];
-									await this.ProcesarTotales(contenedor, "trasladados");
+									if (this.PREPARED["Rol"] == "EMISOR" && elementImpuestos["cfdi:Retenciones"] == undefined) {
+										await this.ProcesarTotales(contenedor, "retenciones");
+									} else {
+										await this.ProcesarTotales(contenedor, "trasladados");
+									}
 								}
 							}
 							if (elementImpuestos["cfdi:Retenciones"] != undefined) {
@@ -102,6 +120,7 @@ class XMLProcessing {
 									}
 								}
 							}
+
 						}
 					}
 				}
@@ -110,84 +129,185 @@ class XMLProcessing {
 			this.resultProcess["historial"].push(this.PREPARED);
 			this.PREPARED = {};
 			return true;
-		} else if (this.tipoRuta == 2) {
-			const contenedor = this.resultSet["cfdi:Comprobante"]["$"];
-			await this.ProcesarTotales(contenedor);
-			this.tipoRuta = undefined;
-			this.resultProcess["historial"].push(this.PREPARED);
-			this.PREPARED = {};
-			return true;
-		} else {
-			this.tipoRuta = undefined;
-			this.PREPARED = {};
-			return false;
-		}
+		} else
+			if (this.tipoRuta == 3) {
+				if (this.resultSet["cfdi:Comprobante"]["cfdi:Impuestos"] == undefined) {
+					const contenedor = this.resultSet["cfdi:Comprobante"]["cfdi:Impuestos"]["$"];
+					await this.ProcesarTotales(contenedor, "sin impuestos");
+				} else {
+					for (let indexImpuestos = 0; indexImpuestos < this.resultSet["cfdi:Comprobante"]["cfdi:Impuestos"].length; indexImpuestos++) {
+						const elementImpuestos = this.resultSet["cfdi:Comprobante"]["cfdi:Impuestos"][indexImpuestos];
+						for (let indexTraslados = 0; indexTraslados < elementImpuestos["cfdi:Traslados"].length; indexTraslados++) {
+							const elementTraslados = elementImpuestos["cfdi:Traslados"][indexTraslados];
+							for (let indexTraslado = 0; indexTraslado < elementTraslados["cfdi:Traslado"].length; indexTraslado++) {
+								const elementTraslado = elementTraslados["cfdi:Traslado"][indexTraslado];
+								const contenedor = elementTraslado["$"];
+								if (this.PREPARED["Rol"] == "EMISOR" && elementImpuestos["cfdi:Retenciones"] == undefined) {
+									await this.ProcesarTotales(contenedor, "retenciones");
+								} else {
+									await this.ProcesarTotales(contenedor, "trasladados");
+								}
+							}
+						}
+						if (elementImpuestos["cfdi:Retenciones"] != undefined) {
+							for (let indexRetenciones = 0; indexRetenciones < elementImpuestos["cfdi:Retenciones"].length; indexRetenciones++) {
+								const elementRetenciones = elementImpuestos["cfdi:Retenciones"][indexRetenciones];
+								for (let indexRetencion = 0; indexRetencion < elementRetenciones["cfdi:Retencion"].length; indexRetencion++) {
+									const elementRetencion = elementRetenciones["cfdi:Retencion"][indexRetencion];
+									const contenedor = elementRetencion["$"];
+									await this.ProcesarTotales(contenedor, "retenciones");
+								}
+							}
+						}
+					}
+				}
+				this.tipoRuta = undefined;
+				this.resultProcess["historial"].push(this.PREPARED);
+				this.PREPARED = {};
+				return true;
+			} else if (this.tipoRuta == 2) {
+				const contenedor = this.resultSet["cfdi:Comprobante"]["$"];
+				await this.ProcesarTotales(contenedor);
+				this.tipoRuta = undefined;
+				this.resultProcess["historial"].push(this.PREPARED);
+				this.PREPARED = {};
+				return true;
+			} else {
+				this.tipoRuta = undefined;
+				this.PREPARED = {};
+				return false;
+			}
 
 	}
 
 	async comprobarRuta() {
 		this.tipoRuta = undefined;
 		try {
-			if (this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][0]["cfdi:Concepto"][0]["cfdi:Impuestos"][0]["cfdi:Traslados"][0]["cfdi:Traslado"][0]["$"] == undefined
-				&& this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][0]["cfdi:Concepto"][0]["cfdi:Impuestos"][0]["cfdi:Retenciones"][0]["cfdi:Retencion"][0]["$"] == undefined) {
+			if (this.resultSet["cfdi:Comprobante"]["cfdi:Impuestos"][0]["cfdi:Traslados"][0]["cfdi:Traslado"][0]["$"] == undefined
+				&& this.resultSet["cfdi:Comprobante"]["cfdi:Impuestos"][0]["cfdi:Retenciones"][0]["cfdi:Retencion"][0]["$"] == undefined) {
 				throw new Error("valor no existente");
 			}
-			this.tipoRuta = 1;
+			this.tipoRuta = 3;
 		} catch (err) {
 			try {
-				if (this.RFC == undefined && this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][0]["cfdi:Concepto"][0]["$"]["ClaveProdServ"] == undefined) { throw new Error("valor no existente"); };
-				if (this.RFC == undefined && this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][0]["cfdi:Concepto"][0]["$"]["ClaveUnidad"] == undefined) { throw new Error("valor no existente"); };
-				this.tipoRuta = 2;
+				if (this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][0]["cfdi:Concepto"][0]["cfdi:Impuestos"][0]["cfdi:Traslados"][0]["cfdi:Traslado"][0]["$"] == undefined
+					&& this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][0]["cfdi:Concepto"][0]["cfdi:Impuestos"][0]["cfdi:Retenciones"][0]["cfdi:Retencion"][0]["$"] == undefined) {
+					throw new Error("valor no existente");
+				}
+				this.tipoRuta = 1;
 			} catch (err) {
-				this.tipoRuta = undefined;
-				this.error = err.stack;
-				return false;
+
+				try {
+					if (this.RFC == undefined && this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][0]["cfdi:Concepto"][0]["$"]["ClaveProdServ"] == undefined) { throw new Error("valor no existente"); };
+					if (this.RFC == undefined && this.resultSet["cfdi:Comprobante"]["cfdi:Conceptos"][0]["cfdi:Concepto"][0]["$"]["ClaveUnidad"] == undefined) { throw new Error("valor no existente"); };
+					this.tipoRuta = 2;
+				} catch (err) {
+					this.tipoRuta = undefined;
+					this.error = err.stack;
+					return false;
+				}
 			}
 		}
 	}
 
+	async comprobarVariables() {
+		//this.resultSetJson
+		this.verificado([this.resultSet["cfdi:Comprobante"]["$"]], "NoCertificado", ["noCertificado", "nocertificado"]);
+		this.verificado([this.resultSet["cfdi:Comprobante"]["$"]], "Fecha", ["fecha"]);
+		this.verificado([this.resultSet["cfdi:Comprobante"]["cfdi:Receptor"][0]["$"]], "Rfc", ["RFC", "rfc"], "Receptor");
+		this.verificado([this.resultSet["cfdi:Comprobante"]["cfdi:Emisor"][0]["$"]], "Rfc", ["RFC", "rfc"], "Emisor");
+		this.verificado([this.resultSet["cfdi:Comprobante"]["cfdi:Receptor"][0]["$"]], "Nombre", ["nombre"], "Receptor");
+		this.verificado([this.resultSet["cfdi:Comprobante"]["cfdi:Emisor"][0]["$"]], "Nombre", ["nombre"], "Emisor");
+		this.verificado([this.resultSet["cfdi:Comprobante"]["$"]], "Moneda", ["moneda"]);
+		this.verificado([this.resultSet["cfdi:Comprobante"]["$"]], "FormaPago", ["formaPago", "formapago", "formaDePago"]);
+		this.verificado([this.resultSet["cfdi:Comprobante"]["$"]], "MetodoPago", ["metodoPago", "metodoPago", "metodoDePago"]);
+		this.verificado([this.resultSet["cfdi:Comprobante"]["$"]], "TipoDeComprobante", ["tipoDeComprobante", "tipodecomprobante"]);
+		this.verificado([this.resultSet["cfdi:Comprobante"]["$"]], "Total", ["total"]);
+		this.verificado([this.resultSet["cfdi:Comprobante"]["$"]], "SubTotal", ["subTotal", "subtotal"]);
+	}
+
+	async verificado(rutaPadre, palabraClave, variaciones, prefijo) {
+		let prefix = "";
+		if (prefijo != undefined) {
+			prefix = prefijo;
+		}
+		let entra = false;
+		for (let indexRuta = 0; indexRuta < rutaPadre.length; indexRuta++) {
+			entra = false;
+			const elementRuta = rutaPadre[indexRuta];
+			this["resultSetJson" + prefix + palabraClave] = "";
+			if (elementRuta[palabraClave] != undefined) {
+				this["resultSetJson" + prefix + palabraClave] = palabraClave;
+				entra = true;
+			}
+			if (!entra) {
+				for (let index = 0; index < variaciones.length; index++) {
+					if (elementRuta[variaciones[index]] != undefined) {
+						this["resultSetJson" + prefix + palabraClave] = variaciones[index];
+						entra = true;
+						break;
+					}
+				}
+			}
+			if (entra) break;
+		}
+		if (!entra) {
+			this["resultSetJson" + prefix + palabraClave] = palabraClave;
+			console.log("No se pudo ubicar la ", palabraClave, " en el comprobante: ", this.path);
+		}
+
+	}
+
 	async ProcesarTotales(contenedor, tipoMovimiento) {
-		if (this.resultProcess[this.year]["totalIVATrasladado"] == undefined) this.resultProcess[this.year]["totalIVATrasladado"] = 0;
-		if (this.resultProcess[this.year]["totalISRTrasladado"] == undefined) this.resultProcess[this.year]["totalISRTrasladado"] = 0;
-		if (this.resultProcess[this.year]["totalIVARetenido"] == undefined) this.resultProcess[this.year]["totalIVARetenido"] = 0;
-		if (this.resultProcess[this.year]["totalISRRetenido"] == undefined) this.resultProcess[this.year]["totalISRRetenido"] = 0;
+		const tiposTotales = ["totalIVATrasladado", "totalISRTrasladado", "totalIVARetenido", "totalISRRetenido", "totalIEPSTrasladado", "totalIEPSRetenido"];
 
+		for (let indexTiposTotales = 0; indexTiposTotales < tiposTotales.length; indexTiposTotales++) {
+			const elementTipoTotal = tiposTotales[indexTiposTotales];
+			if (this.resultProcess[this.year][elementTipoTotal] == undefined) this.resultProcess[this.year][elementTipoTotal] = 0;
+			if (this.resultProcess[this.year + "_" + this.month][elementTipoTotal] == undefined) this.resultProcess[this.year + "_" + this.month][elementTipoTotal] = 0;
+			if (this.resultProcess[this.year + "_" + this.month][elementTipoTotal + "_del_año_hasta_ahora"] == undefined) this.resultProcess[this.year + "_" + this.month][elementTipoTotal + "_del_año_hasta_ahora"] = this.resultProcess[this.year][elementTipoTotal];
+			if (this.PREPARED[elementTipoTotal] == undefined) this.PREPARED[elementTipoTotal] = 0;
+		}
 
-		if (this.resultProcess[this.year + "_" + this.month]["totalIVATrasladado"] == undefined) this.resultProcess[this.year + "_" + this.month]["totalIVATrasladado"] = 0;
-		if (this.resultProcess[this.year + "_" + this.month]["totalISRTrasladado"] == undefined) this.resultProcess[this.year + "_" + this.month]["totalISRTrasladado"] = 0;
-		if (this.resultProcess[this.year + "_" + this.month]["totalIVARetenido"] == undefined) this.resultProcess[this.year + "_" + this.month]["totalIVARetenido"] = 0;
-		if (this.resultProcess[this.year + "_" + this.month]["totalISRRetenido"] == undefined) this.resultProcess[this.year + "_" + this.month]["totalISRRetenido"] = 0;
+		if (this.tipoRuta == 1 || this.tipoRuta == 3) {
 
-		if (this.resultProcess[this.year + "_" + this.month]["totalIVATrasladado_del_año_hasta_ahora"] == undefined) this.resultProcess[this.year + "_" + this.month]["totalIVATrasladado_del_año_hasta_ahora"] = this.resultProcess[this.year]["totalIVATrasladado"];
-		if (this.resultProcess[this.year + "_" + this.month]["totalISRTrasladado_del_año_hasta_ahora"] == undefined) this.resultProcess[this.year + "_" + this.month]["totalISRTrasladado_del_año_hasta_ahora"] = this.resultProcess[this.year]["totalISRTrasladado"];
-		if (this.resultProcess[this.year + "_" + this.month]["totalIVARetenido_del_año_hasta_ahora"] == undefined) this.resultProcess[this.year + "_" + this.month]["totalIVARetenido_del_año_hasta_ahora"] = this.resultProcess[this.year]["totalIVARetenido"];
-		if (this.resultProcess[this.year + "_" + this.month]["totalISRRetenido_del_año_hasta_ahora"] == undefined) this.resultProcess[this.year + "_" + this.month]["totalISRRetenido_del_año_hasta_ahora"] = this.resultProcess[this.year]["totalISRRetenido"];
+			let impuesto = "";
+			let tipoTotal = "";
+			let importe = "";
+			if (contenedor["Impuesto"] != undefined) {
+				impuesto = "Impuesto";
+			} else if (contenedor["impuesto"] != undefined) {
+				impuesto = "impuesto";
+			}
 
-		if (this.tipoRuta == 1) {
-			if (tipoMovimiento == "trasladados") {
-				if (contenedor["Impuesto"] == "002") {
-					this.resultProcess[this.year]["totalIVATrasladado"] += parseFloat(contenedor["Importe"]);
-					this.resultProcess[this.year + "_" + this.month]["totalIVATrasladado"] += parseFloat(contenedor["Importe"]);
-					this.resultProcess[this.year + "_" + this.month]["totalIVATrasladado_del_año_hasta_ahora"] += parseFloat(contenedor["Importe"]);
-					this.PREPARED["totalIVATrasladado"] = parseFloat(contenedor["Importe"]);
-				} else if (contenedor["Impuesto"] == "001") {
-					this.resultProcess[this.year]["totalISRTrasladado"] += parseFloat(contenedor["Importe"]);
-					this.resultProcess[this.year + "_" + this.month]["totalISRTrasladado"] += parseFloat(contenedor["Importe"]);
-					this.resultProcess[this.year + "_" + this.month]["totalISRTrasladado_del_año_hasta_ahora"] += parseFloat(contenedor["Importe"]);
-					this.PREPARED["totalISRTrasladado"] = parseFloat(contenedor["Importe"]);
-				}
-			} else if (tipoMovimiento == "retenciones") {
-				if (contenedor["Impuesto"] == "002") {
-					this.resultProcess[this.year]["totalIVARetenido"] += parseFloat(contenedor["Importe"]);
-					this.resultProcess[this.year + "_" + this.month]["totalIVARetenido"] += parseFloat(contenedor["Importe"]);
-					this.resultProcess[this.year + "_" + this.month]["totalIVARetenido_del_año_hasta_ahora"] += parseFloat(contenedor["Importe"]);
-					this.PREPARED["totalIVARetenido"] = parseFloat(contenedor["Importe"]);
-				} else if (contenedor["Impuesto"] == "001") {
-					this.resultProcess[this.year]["totalISRRetenido"] += parseFloat(contenedor["Importe"]);
-					this.resultProcess[this.year + "_" + this.month]["totalISRRetenido"] += parseFloat(contenedor["Importe"]);
-					this.resultProcess[this.year + "_" + this.month]["totalISRRetenido_del_año_hasta_ahora"] += parseFloat(contenedor["Importe"]);
-					this.PREPARED["totalISRRetenido"] = parseFloat(contenedor["Importe"]);
-				}
+			if (contenedor["Importe"] != undefined) {
+				importe = "Importe";
+			} else if (contenedor["importe"] != undefined) {
+				importe = "importe";
+			}
+
+			if (tipoMovimiento == "trasladados" && (contenedor[impuesto] == "002" || contenedor[impuesto] == "IVA")) {
+				tipoTotal = "totalIVATrasladado";
+			} else if (tipoMovimiento == "trasladados" && (contenedor[impuesto] == "001" || contenedor[impuesto] == "ISR")) {
+				tipoTotal = "totalISRTrasladado";
+			} else if (tipoMovimiento == "trasladados" && (contenedor[impuesto] == "003" || contenedor[impuesto] == "IEPS")) {
+				tipoTotal = "totalIEPSTrasladado";
+			} else if (tipoMovimiento == "retenciones" && (contenedor[impuesto] == "002" || contenedor[impuesto] == "IVA")) {
+				tipoTotal = "totalIVARetenido";
+			} else if (tipoMovimiento == "retenciones" && (contenedor[impuesto] == "001" || contenedor[impuesto] == "ISR")) {
+				tipoTotal = "totalISRRetenido";
+			} else if (tipoMovimiento == "retenciones" && (contenedor[impuesto] == "003" || contenedor[impuesto] == "IEPS")) {
+				tipoTotal = "totalIEPSRetenido";
+			} else {
+				console.log("No se encontro el impuesto de IVA o ISR");
+				tipoTotal = "no definido";
+			}
+
+			if (tipoTotal != "no definido") {
+				this.resultProcess[this.year][tipoTotal] += parseFloat(contenedor[importe]);
+				this.resultProcess[this.year + "_" + this.month][tipoTotal] += parseFloat(contenedor[importe]);
+				this.resultProcess[this.year + "_" + this.month][tipoTotal + "_del_año_hasta_ahora"] += parseFloat(contenedor[importe]);
+				this.PREPARED[tipoTotal] += parseFloat(contenedor[importe]);
 			}
 		}
 	}
@@ -222,7 +342,8 @@ class XMLProcessing {
 			const elementFile = files[indexFiles];
 			await this.loadFile("xml/" + elementFile);
 			const resultSet = await this.ConvertXMLToJSON();
-			myListFiles.push({ file: elementFile, Fecha: resultSet["cfdi:Comprobante"]["$"]["Fecha"] })
+			let Fecha = resultSet["cfdi:Comprobante"]["$"]["Fecha"] || resultSet["cfdi:Comprobante"]["$"]["fecha"];
+			myListFiles.push({ file: elementFile, Fecha })
 		}
 
 		let isChange = false;
@@ -251,6 +372,7 @@ class XMLProcessing {
 			const jsonFile = await this.ConvertXMLToJSON();
 			try {
 				await this.comprobarRuta();
+				await this.comprobarVariables();
 				await this.UbicarContenedor();
 				if (this.error) {
 					console.log("Falla al procesar", elementFile);
@@ -259,7 +381,8 @@ class XMLProcessing {
 					fs.writeFileSync("temp/" + elementFile + ".json", JSON.stringify(jsonFile, null, "\t"));
 					this.error = undefined;
 				} else {
-					console.log("Procesado: ", elementFile);
+					if (this.debug) fs.writeFileSync("temp/" + elementFile + ".json", JSON.stringify(jsonFile, null, "\t"));
+					// if (this.debug) console.log("Procesado: ", elementFile);
 				}
 			} catch (err) {
 				console.log("Falla al procesar", elementFile);
