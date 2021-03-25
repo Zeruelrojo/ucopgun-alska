@@ -342,8 +342,13 @@ class XMLProcessing {
 			const elementFile = files[indexFiles];
 			await this.loadFile("xml/" + elementFile);
 			const resultSet = await this.ConvertXMLToJSON();
-			let Fecha = resultSet["cfdi:Comprobante"]["$"]["Fecha"] || resultSet["cfdi:Comprobante"]["$"]["fecha"];
-			myListFiles.push({ file: elementFile, Fecha })
+			if(resultSet != undefined){
+				let Fecha = resultSet["cfdi:Comprobante"]["$"]["Fecha"] || resultSet["cfdi:Comprobante"]["$"]["fecha"];
+				myListFiles.push({ file: elementFile, Fecha })
+			} else{
+				console.log("Error al cargar el archivo",": ", "xml/", elementFile, " removido de la lista para procesar")
+			}
+
 		}
 
 		let isChange = false;
